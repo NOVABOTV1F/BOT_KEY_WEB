@@ -511,11 +511,7 @@
 </head>
 <body>
     <!-- AUDIO: file asli GitHub 404, pakai sumber aktif. Ganti src jika sudah upload file sendiri. -->
-    <!-- Musik ada di dalam file video (track AAC). Tidak perlu file mp3 terpisah. -->
-    <!-- Optional: kalau nanti upload background-music.mp3, bisa dipakai juga -->
-    <audio id="bgMusic" loop preload="auto" style="display:none">
-        <source src="https://raw.githubusercontent.com/NOVABOTV1F/BOT_KEY_WEB/main/background-music.mp3" type="audio/mpeg">
-    </audio>
+    <!-- Suara dari video saja (1 video aktif per screen) -->
 
     <!-- SCREEN 1: LOGIN AWAL -->
     <div id="screen1" class="screen active">
@@ -681,38 +677,43 @@
         let validBotCode = null;
         let mediaStarted = false;
 
-        const music = document.getElementById('bgMusic');
-        if (music) music.volume = 0.5;
+        // Hanya 1 video aktif yang boleh bersuara (screen yang sedang tampil)
+        function getActiveVideo() {
+            var s1 = document.getElementById('screen1');
+            var s4 = document.getElementById('screen4');
+            if (s1 && s1.classList.contains('active')) {
+                return document.getElementById('video1');
+            }
+            if (s4 && s4.classList.contains('active')) {
+                return document.getElementById('video2');
+            }
+            return null;
+        }
 
-        // Video autoplay harus muted dulu (aturan browser)
-        function ensureVideosPlay(withSound) {
+        function syncVideoAudio() {
+            var active = getActiveVideo();
             document.querySelectorAll('video').forEach(function(v) {
-                if (withSound) {
+                if (v === active && mediaStarted) {
+                    // Video di screen aktif → play + suara
                     v.muted = false;
                     v.volume = 0.7;
+                    if (v.paused) v.play().catch(function() {});
                 } else {
+                    // Video lain → mute + pause biar tidak dobel lagu
                     v.muted = true;
-                }
-                if (v.paused) {
-                    v.play().catch(function() {});
+                    v.pause();
+                    // Tetap play diam di screen1 saat load (autoplay muted)
+                    if (v.id === 'video1' && document.getElementById('screen1').classList.contains('active') && !mediaStarted) {
+                        v.play().catch(function() {});
+                    }
                 }
             });
         }
 
-        // Klik / touch / key di mana saja → video play + SUARA dari video
+        // Klik di mana saja → aktifkan SUARA hanya di video screen aktif
         function startMedia() {
-            // Unmute semua video = musik dari video terdengar
-            ensureVideosPlay(true);
-
-            // Coba juga audio terpisah kalau file-nya ada
-            if (music) {
-                music.muted = false;
-                var p = music.play();
-                if (p && typeof p.then === 'function') {
-                    p.then(function() { mediaStarted = true; }).catch(function() {});
-                }
-            }
             mediaStarted = true;
+            syncVideoAudio();
         }
 
         document.addEventListener('click', startMedia);
@@ -778,7 +779,7 @@
                 document.getElementById('screen4').classList.add('active');
                 var userName = localStorage.getItem('userName');
                 document.getElementById('userGreeting').textContent = 'Selamat datang, ' + userName + '! 👋';
-                ensureVideosPlay(mediaStarted);
+                syncVideoAudio();
                 startMedia();
             }, 3000);
         }
@@ -817,16 +818,12 @@
             }
 
             // Saat load: video muted dulu biar autoplay jalan
-            ensureVideosPlay(false);
+            syncVideoAudio();
         });
 
         document.addEventListener('visibilitychange', function() {
             if (!document.hidden) {
-                if (mediaStarted) {
-                    ensureVideosPlay(true);
-                } else {
-                    ensureVideosPlay(false);
-                }
+                syncVideoAudio();
             }
         });
 
