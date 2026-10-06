@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOVA BOT V1F — Login & Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0e27;
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .screen {
+            display: none;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== SCREEN 1: LOGIN AWAL ===== */
+        #screen1 {
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-container {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(138, 43, 226, 0.3);
+            margin-bottom: 30px;
+        }
+
+        .video-container video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .login-choices {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .btn-choice {
+            flex: 1;
+            padding: 16px 24px;
+            border: 2px solid #8a2be2;
+            background: rgba(138, 43, 226, 0.1);
+            color: #fff;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-choice:hover {
+            background: rgba(138, 43, 226, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-choice:active {
+            background: #8a2be2;
+        }
+
+        /* ===== FORM LOGIN ===== */
+        .login-form {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 14, 39, 0.95);
+            backdrop-filter: blur(4px);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .login-form.active {
+            display: flex;
+        }
+
+        .form-content {
+            background: #1a1f3a;
+            border: 2px solid #8a2be2;
+            border-radius: 12px;
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(138, 43, 226, 0.2);
+        }
+
+        .form-content h2 {
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #b0a0ff;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #8a2be2;
+            background: rgba(138, 43, 226, 0.05);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #ff00ff;
+            background: rgba(138, 43, 226, 0.15);
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .btn-submit {
+            flex: 1;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #8a2be2, #ff00ff);
+            border: none;
+            color: #fff;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(138, 43, 226, 0.4);
+        }
+
+        .btn-cancel {
+            flex: 1;
+            padding: 12px 20px;
+            background: transparent;
+            border: 1px solid #8a2be2;
+            color: #8a2be2;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cancel:hover {
+            background: rgba(138, 43, 226, 0.1);
+        }
+
+        /* ===== SCREEN 2: DASHBOARD ===== */
+        #screen2 {
+            justify-content: flex-start;
+            padding-top: 40px;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .dashboard-header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #8a2be2, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .dashboard-content {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .video-section {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .video-section .video-container {
+            max-width: 400px;
+            margin: 20px auto;
+        }
+
+        .dashboard-section {
+            background: #1a1f3a;
+            border: 2px solid #8a2be2;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .dashboard-section h3 {
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: #8a2be2;
+        }
+
+        .platform-group {
+            margin-bottom: 20px;
+        }
+
+        .platform-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #b0a0ff;
+        }
+
+        .token-input {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(138, 43, 226, 0.05);
+            border: 1px solid #8a2be2;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 13px;
+            margin-bottom: 12px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .warning-box {
+            background: rgba(255, 69, 0, 0.15);
+            border-left: 4px solid #ff4500;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 25px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #ffb366;
+        }
+
+        .warning-box strong {
+            color: #ff6b6b;
+        }
+
+        .bot-instructions {
+            background: #2a2f4a;
+            border: 1px solid #8a2be2;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 25px;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .bot-instructions h4 {
+            margin-bottom: 15px;
+            color: #8a2be2;
+        }
+
+        .bot-instructions p {
+            margin-bottom: 12px;
+            color: #b0a0ff;
+        }
+
+        .bot-instructions code {
+            background: rgba(138, 43, 226, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #ff00ff;
+            font-family: 'Courier New', monospace;
+        }
+
+        .whatsapp-link {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 12px 20px;
+            background: #25d366;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .whatsapp-link:hover {
+            background: #1fb456;
+            transform: translateY(-2px);
+        }
+
+        .btn-publish {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #8a2be2, #ff00ff);
+            border: none;
+            color: #fff;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-publish:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(138, 43, 226, 0.4);
+        }
+
+        .logout-btn {
+            padding: 10px 20px;
+            background: transparent;
+            border: 1px solid #ff4500;
+            color: #ff4500;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 30px;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 69, 0, 0.1);
+        }
+
+        @media (max-width: 480px) {
+            .form-content {
+                padding: 20px;
+            }
+
+            .dashboard-header h1 {
+                font-size: 24px;
+            }
+
+            .login-choices {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- SCREEN 1: LOGIN AWAL -->
+    <div id="screen1" class="screen active">
+        <div class="video-container">
+            <video autoplay loop muted playsinline>
+                <source src="https://raw.githubusercontent.com/NOVABOTV1F/BOT_KEY_WEB/main/tiktokio.com1791268330_39vUti4Rh3XA5sskjclN.mp4" type="video/mp4">
+            </video>
+        </div>
+
+        <div class="login-choices">
+            <button class="btn-choice" onclick="showLoginForm('user')">LOGIN USER</button>
+            <button class="btn-choice" onclick="showLoginForm('bot')">LOGIN BOT</button>
+        </div>
+    </div>
+
+    <!-- LOGIN FORM OVERLAY -->
+    <div class="login-form" id="loginForm">
+        <div class="form-content">
+            <h2 id="formTitle">Login</h2>
+            <form onsubmit="submitLogin(event)">
+                <div class="form-group">
+                    <label for="name">Nama Lengkap</label>
+                    <input type="text" id="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="age">Umur</label>
+                    <input type="number" id="age" min="1" max="120" required>
+                </div>
+                <div class="form-buttons">
+                    <button type="submit" class="btn-submit">Masuk</button>
+                    <button type="button" class="btn-cancel" onclick="closeLoginForm()">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCREEN 2: DASHBOARD BOT -->
+    <div id="screen2" class="screen">
+        <div class="dashboard-header">
+            <h1>🤖 NOVA BOT V1F</h1>
+            <p id="userGreeting">Selamat datang!</p>
+        </div>
+
+        <div class="dashboard-content">
+            <!-- VIDEO SECTION -->
+            <div class="video-section">
+                <h3>Setup Panduan</h3>
+                <div class="video-container">
+                    <video autoplay loop muted playsinline>
+                        <source src="https://raw.githubusercontent.com/NOVABOTV1F/BOT_KEY_WEB/main/tiktokio.com1791268269_38PsfLpJNEF2VsxL3iAm.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+
+            <!-- TOKEN SETUP SECTION -->
+            <div class="dashboard-section">
+                <h3>⚙️ Auto Publish Platforms</h3>
+
+                <div class="platform-group">
+                    <div class="platform-name">📌 GitHub</div>
+                    <input type="password" class="token-input" placeholder="Masukkan GitHub Token" data-platform="github">
+                </div>
+
+                <div class="platform-group">
+                    <div class="platform-name">🚀 Vercel</div>
+                    <input type="password" class="token-input" placeholder="Masukkan Vercel Token" data-platform="vercel">
+                </div>
+
+                <div class="platform-group">
+                    <div class="platform-name">🎬 Netflix</div>
+                    <input type="password" class="token-input" placeholder="Masukkan Netflix API Key" data-platform="netflix">
+                </div>
+
+                <div class="platform-group">
+                    <div class="platform-name">🌐 Netlify</div>
+                    <input type="password" class="token-input" placeholder="Masukkan Netlify Token" data-platform="netlify">
+                </div>
+
+                <div class="platform-group">
+                    <div class="platform-name">💾 GitLab</div>
+                    <input type="password" class="token-input" placeholder="Masukkan GitLab Token" data-platform="gitlab">
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ PERINGATAN!</strong><br>
+                    Token adalah <strong>PRIVASI ADMIN/OWNER/MODERATOR</strong>. Tidak diperbolehkan membaca token user!<br><br>
+                    <strong>Tanggung Jawab:</strong> Jika terlanjur kami akan memberikan akses BOT FREE 2 minggu tanpa perlu bypass ke admin/moderator.
+                </div>
+
+                <button class="btn-publish" onclick="publishTokens()">💾 Simpan Token</button>
+            </div>
+
+            <!-- BOT SETUP INSTRUCTIONS -->
+            <div class="bot-instructions">
+                <h4>🔧 Contoh Setup Bot (20+ Konfigurasi Otomatis)</h4>
+                <p><strong>1. Auto Fill Nama Web:</strong> Bot otomatis mengisi nama pada field <code>.website-name</code></p>
+                <p><strong>2. Auto Select Region:</strong> Deteksi lokasi user, pilih region default</p>
+                <p><strong>3. Auto Deploy GitHub:</strong> Setelah token tersimpan, push otomatis ke repo</p>
+                <p><strong>4. Auto Build Vercel:</strong> Trigger build di Vercel setelah push GitHub</p>
+                <p><strong>5. Auto Create README:</strong> Generate README.md dengan project metadata</p>
+                <p><strong>6. Auto Config ENV:</strong> Setup file .env.local dengan API keys</p>
+                <p><strong>7. Auto Install Dependencies:</strong> Run npm install otomatis</p>
+                <p><strong>8. Auto Format Code:</strong> Prettier formatting sebelum push</p>
+                <p><strong>9. Auto Generate Sitemap:</strong> Buat sitemap.xml untuk SEO</p>
+                <p><strong>10. Auto Backup Database:</strong> Backup sebelum deploy</p>
+                <p><strong>11. Auto Update Package.json:</strong> Version bump otomatis</p>
+                <p><strong>12. Auto Create Git Tags:</strong> Tag release otomatis</p>
+                <p><strong>13. Auto Send Webhook:</strong> Notifikasi deploy via Discord/Slack</p>
+                <p><strong>14. Auto Screenshot Test:</strong> Ambil screenshot hasil deploy</p>
+                <p><strong>15. Auto Health Check:</strong> Monitor uptime setelah deploy</p>
+                <p><strong>16. Auto Rollback:</strong> Revert otomatis jika ada error</p>
+                <p><strong>17. Auto Cache Clear:</strong> Flush CDN cache setelah update</p>
+                <p><strong>18. Auto Analytics Setup:</strong> Inject Google Analytics tracking</p>
+                <p><strong>19. Auto Compress Assets:</strong> Optimize images sebelum push</p>
+                <p><strong>20. Auto Security Scan:</strong> Jalankan vulnerability check</p>
+                <p><strong>21. Auto Certificate Renewal:</strong> SSL certificate auto renew</p>
+                <p><strong>22. Auto Database Sync:</strong> Sinkronisasi database antar environment</p>
+                <p><strong>23. Auto Notification Email:</strong> Kirim email notifikasi deployment</p>
+                <p><strong>24. Auto User Permission Setup:</strong> Generate user roles otomatis</p>
+
+                <p style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #8a2be2;">
+                    <strong>❓ Sudah login ke Bot?</strong><br>
+                    Harap ambil <strong>screenshot (SS)</strong> bagian login dan minta <strong>KEY</strong> ke admin/moderator melalui saluran WhatsApp kami:
+                </p>
+
+                <a href="https://whatsapp.com/channel/0029Vb8cJY3H5JLrmymEF63t" class="whatsapp-link" target="_blank">
+                    📱 Buka WhatsApp Channel Admin
+                </a>
+            </div>
+
+            <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+        </div>
+    </div>
+
+    <script>
+        let currentLoginType = null;
+
+        function showLoginForm(type) {
+            currentLoginType = type;
+            const formTitle = document.getElementById('formTitle');
+            formTitle.textContent = type === 'user' ? 'Login User' : 'Login Bot';
+            document.getElementById('loginForm').classList.add('active');
+        }
+
+        function closeLoginForm() {
+            document.getElementById('loginForm').classList.remove('active');
+            document.getElementById('name').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('age').value = '';
+        }
+
+        function submitLogin(event) {
+            event.preventDefault();
+            const name = document.getElementById('name').value.trim();
+            const age = document.getElementById('age').value;
+
+            if (!name || !age) return alert('Semua field harus diisi!');
+
+            // Simpan data ke localStorage
+            localStorage.setItem('userName', name);
+            localStorage.setItem('userAge', age);
+            localStorage.setItem('loginType', currentLoginType);
+
+            // Beralih ke screen 2
+            closeLoginForm();
+            document.getElementById('screen1').classList.remove('active');
+            document.getElementById('screen2').classList.add('active');
+            document.getElementById('userGreeting').textContent = `Selamat datang, ${name}! 👋`;
+        }
+
+        function publishTokens() {
+            const tokens = {};
+            document.querySelectorAll('.token-input').forEach(input => {
+                const platform = input.getAttribute('data-platform');
+                const value = input.value.trim();
+                if (value) {
+                    tokens[platform] = value;
+                }
+            });
+
+            if (Object.keys(tokens).length === 0) {
+                return alert('Masukkan minimal satu token!');
+            }
+
+            // Simpan tokens (dalam praktik nyata, gunakan backend/encryption)
+            localStorage.setItem('botTokens', JSON.stringify(tokens));
+            alert(`✅ Token tersimpan!\nPlatform: ${Object.keys(tokens).join(', ')}`);
+        }
+
+        function logout() {
+            if (confirm('Yakin ingin logout?')) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        // Check apakah sudah login saat page load
+        window.addEventListener('load', () => {
+            const userName = localStorage.getItem('userName');
+            if (userName) {
+                document.getElementById('screen1').classList.remove('active');
+                document.getElementById('screen2').classList.add('active');
+                document.getElementById('userGreeting').textContent = `Selamat datang, ${userName}! 👋`;
+            }
+        });
+    </script>
+</body>
+  </html>
