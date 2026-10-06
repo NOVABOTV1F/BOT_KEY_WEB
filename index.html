@@ -37,7 +37,6 @@
             flex-direction: column;
         }
 
-        /* ===== SCREEN 1: LOGIN AWAL ===== */
         #screen1 {
             align-items: center;
             justify-content: center;
@@ -51,6 +50,7 @@
             box-shadow: 0 10px 40px rgba(138, 43, 226, 0.3);
             margin-bottom: 30px;
             background: #000;
+            position: relative;
         }
 
         .video-container video {
@@ -88,7 +88,6 @@
             background: #8a2be2;
         }
 
-        /* ===== FORM LOGIN ===== */
         .login-form {
             display: none;
             position: fixed;
@@ -193,7 +192,6 @@
             background: rgba(138, 43, 226, 0.1);
         }
 
-        /* ===== SCREEN 2: BOT CODE VALIDATION ===== */
         #screen2 {
             align-items: center;
             justify-content: center;
@@ -283,7 +281,6 @@
             display: block;
         }
 
-        /* ===== SCREEN 3: PROCESSING ===== */
         #screen3 {
             align-items: center;
             justify-content: center;
@@ -330,7 +327,6 @@
             font-weight: 600;
         }
 
-        /* ===== SCREEN 4: DASHBOARD ===== */
         #screen4 {
             justify-content: flex-start;
             padding-top: 40px;
@@ -514,15 +510,17 @@
     </style>
 </head>
 <body>
-    <!-- AUDIO BACKGROUND -->
-    <audio id="bgMusic" autoplay loop muted>
+    <!-- AUDIO: file asli GitHub 404, pakai sumber aktif. Ganti src jika sudah upload file sendiri. -->
+    <!-- Musik ada di dalam file video (track AAC). Tidak perlu file mp3 terpisah. -->
+    <!-- Optional: kalau nanti upload background-music.mp3, bisa dipakai juga -->
+    <audio id="bgMusic" loop preload="auto" style="display:none">
         <source src="https://raw.githubusercontent.com/NOVABOTV1F/BOT_KEY_WEB/main/background-music.mp3" type="audio/mpeg">
     </audio>
 
     <!-- SCREEN 1: LOGIN AWAL -->
     <div id="screen1" class="screen active">
         <div class="video-container">
-            <video autoplay loop muted playsinline>
+            <video id="video1" autoplay loop muted playsinline webkit-playsinline>
                 <source src="https://raw.githubusercontent.com/NOVABOTV1F/BOT_KEY_WEB/main/tiktokio.com1791268330_39vUti4Rh3XA5sskjclN.mp4" type="video/mp4">
             </video>
         </div>
@@ -591,17 +589,15 @@
         </div>
 
         <div class="dashboard-content">
-            <!-- VIDEO SECTION -->
             <div class="video-section">
                 <h3>Setup Panduan</h3>
                 <div class="video-container">
-                    <video autoplay loop muted playsinline>
+                    <video id="video2" autoplay loop muted playsinline webkit-playsinline>
                         <source src="https://raw.githubusercontent.com/NOVABOTV1F/BOT_KEY_WEB/main/tiktokio.com1791268269_38PsfLpJNEF2VsxL3iAm.mp4" type="video/mp4">
                     </video>
                 </div>
             </div>
 
-            <!-- TOKEN SETUP SECTION -->
             <div class="dashboard-section">
                 <h3>⚙️ Auto Publish Platforms</h3>
 
@@ -639,7 +635,6 @@
                 <button class="btn-publish" onclick="publishTokens()">💾 Simpan Token</button>
             </div>
 
-            <!-- BOT SETUP INSTRUCTIONS -->
             <div class="bot-instructions">
                 <h4>🔧 Contoh Setup Bot (20+ Konfigurasi Otomatis)</h4>
                 <p><strong>1. Auto Fill Nama Web:</strong> Bot otomatis mengisi nama pada field <code>.website-name</code></p>
@@ -684,12 +679,51 @@
     <script>
         let currentLoginType = null;
         let validBotCode = null;
+        let mediaStarted = false;
+
+        const music = document.getElementById('bgMusic');
+        if (music) music.volume = 0.5;
+
+        // Video autoplay harus muted dulu (aturan browser)
+        function ensureVideosPlay(withSound) {
+            document.querySelectorAll('video').forEach(function(v) {
+                if (withSound) {
+                    v.muted = false;
+                    v.volume = 0.7;
+                } else {
+                    v.muted = true;
+                }
+                if (v.paused) {
+                    v.play().catch(function() {});
+                }
+            });
+        }
+
+        // Klik / touch / key di mana saja → video play + SUARA dari video
+        function startMedia() {
+            // Unmute semua video = musik dari video terdengar
+            ensureVideosPlay(true);
+
+            // Coba juga audio terpisah kalau file-nya ada
+            if (music) {
+                music.muted = false;
+                var p = music.play();
+                if (p && typeof p.then === 'function') {
+                    p.then(function() { mediaStarted = true; }).catch(function() {});
+                }
+            }
+            mediaStarted = true;
+        }
+
+        document.addEventListener('click', startMedia);
+        document.addEventListener('touchstart', startMedia, { passive: true });
+        document.addEventListener('keydown', startMedia);
 
         function showLoginForm(type) {
             currentLoginType = type;
-            const formTitle = document.getElementById('formTitle');
-            formTitle.textContent = type === 'user' ? 'Login User' : 'Login Bot';
+            document.getElementById('formTitle').textContent = type === 'user' ? 'Login User' : 'Login Bot';
             document.getElementById('loginForm').classList.add('active');
+            startMedia();
         }
 
         function closeLoginForm() {
@@ -701,8 +735,8 @@
 
         function submitLogin(event) {
             event.preventDefault();
-            const name = document.getElementById('name').value.trim();
-            const age = document.getElementById('age').value;
+            var name = document.getElementById('name').value.trim();
+            var age = document.getElementById('age').value;
 
             if (!name || !age) return alert('Semua field harus diisi!');
 
@@ -713,11 +747,12 @@
             closeLoginForm();
             document.getElementById('screen1').classList.remove('active');
             document.getElementById('screen2').classList.add('active');
+            startMedia();
         }
 
         function verifyBotCode() {
-            const code = document.getElementById('botCode').value.trim().toUpperCase();
-            const codeError = document.getElementById('codeError');
+            var code = document.getElementById('botCode').value.trim().toUpperCase();
+            var codeError = document.getElementById('codeError');
 
             if (!code) {
                 codeError.textContent = '❌ Masukkan BOT Code terlebih dahulu!';
@@ -725,38 +760,35 @@
                 return;
             }
 
-            // Format validasi: BOT_XXXXX (minimal BOT_)
             if (!code.startsWith('BOT_')) {
                 codeError.textContent = '❌ Code harus dimulai dengan BOT_';
                 codeError.classList.add('show');
                 return;
             }
 
-            // Simpan code
             validBotCode = code;
             localStorage.setItem('botCode', code);
 
-            // Beralih ke processing screen
             document.getElementById('screen2').classList.remove('active');
             document.getElementById('screen3').classList.add('active');
+            startMedia();
 
-            // Simulasi proses 3 detik
-            setTimeout(() => {
+            setTimeout(function() {
                 document.getElementById('screen3').classList.remove('active');
                 document.getElementById('screen4').classList.add('active');
-                const userName = localStorage.getItem('userName');
-                document.getElementById('userGreeting').textContent = `Selamat datang, ${userName}! 👋`;
+                var userName = localStorage.getItem('userName');
+                document.getElementById('userGreeting').textContent = 'Selamat datang, ' + userName + '! 👋';
+                ensureVideosPlay(mediaStarted);
+                startMedia();
             }, 3000);
         }
 
         function publishTokens() {
-            const tokens = {};
-            document.querySelectorAll('.token-input').forEach(input => {
-                const platform = input.getAttribute('data-platform');
-                const value = input.value.trim();
-                if (value) {
-                    tokens[platform] = value;
-                }
+            var tokens = {};
+            document.querySelectorAll('.token-input').forEach(function(input) {
+                var platform = input.getAttribute('data-platform');
+                var value = input.value.trim();
+                if (value) tokens[platform] = value;
             });
 
             if (Object.keys(tokens).length === 0) {
@@ -764,7 +796,7 @@
             }
 
             localStorage.setItem('botTokens', JSON.stringify(tokens));
-            alert(`✅ Token tersimpan!\nPlatform: ${Object.keys(tokens).join(', ')}`);
+            alert('✅ Token tersimpan!\nPlatform: ' + Object.keys(tokens).join(', '));
         }
 
         function logout() {
@@ -774,32 +806,35 @@
             }
         }
 
-        // Check status saat page load
-        window.addEventListener('load', () => {
-            const userName = localStorage.getItem('userName');
-            const botCode = localStorage.getItem('botCode');
+        window.addEventListener('load', function() {
+            var userName = localStorage.getItem('userName');
+            var botCode = localStorage.getItem('botCode');
 
             if (userName && botCode) {
                 document.getElementById('screen1').classList.remove('active');
                 document.getElementById('screen4').classList.add('active');
-                document.getElementById('userGreeting').textContent = `Selamat datang, ${userName}! 👋`;
+                document.getElementById('userGreeting').textContent = 'Selamat datang, ' + userName + '! 👋';
             }
 
-            // Unmute audio saat user interact
-            document.addEventListener('click', () => {
-                const music = document.getElementById('bgMusic');
-                if (music.muted) {
-                    music.muted = false;
-                }
-            }, { once: true });
+            // Saat load: video muted dulu biar autoplay jalan
+            ensureVideosPlay(false);
         });
 
-        // Allow Enter key to verify code
-        document.addEventListener('keypress', (e) => {
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                if (mediaStarted) {
+                    ensureVideosPlay(true);
+                } else {
+                    ensureVideosPlay(false);
+                }
+            }
+        });
+
+        document.addEventListener('keypress', function(e) {
             if (e.key === 'Enter' && document.getElementById('screen2').classList.contains('active')) {
                 verifyBotCode();
             }
         });
     </script>
 </body>
-        </html>
+</html>
